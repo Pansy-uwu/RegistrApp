@@ -1,13 +1,78 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>crear-asignatura</ion-title>
+    <ion-title>Crear Asignatura</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">crear-asignatura</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-item>
+    <ion-label position="stacked">Nombre</ion-label>
+    <ion-input [(ngModel)]="asignatura.nombre"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Sección</ion-label>
+    <ion-input [(ngModel)]="asignatura.seccion"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Tipo de Clase</ion-label>
+    <ion-select [(ngModel)]="asignatura.tipoClase">
+      <ion-select-option value="teorica">Teórica</ion-select-option>
+      <ion-select-option value="practica">Práctica</ion-select-option>
+      <ion-select-option value="mixta">Mixta</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <!-- Horarios de Teoría -->
+  <div *ngIf="asignatura.tipoClase === 'teorica' || asignatura.tipoClase === 'mixta'">
+    <ion-item>
+      <ion-label position="stacked">Hora Inicio (Teórica)</ion-label>
+      <ion-datetime [(ngModel)]="asignatura.horarios.teorica.horaInicio" presentation="time"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Hora Fin (Teórica)</ion-label>
+      <ion-datetime [(ngModel)]="asignatura.horarios.teorica.horaFin" presentation="time"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Salas (Teórica)</ion-label>
+      <ion-input [(ngModel)]="asignatura.horarios.teorica.salas[0]"></ion-input>
+    </ion-item>
+  </div>
+
+  <!-- Horarios de Práctica -->
+  <div *ngIf="asignatura.tipoClase === 'practica' || asignatura.tipoClase === 'mixta'">
+    <ion-item>
+      <ion-label position="stacked">Hora Inicio (Práctica)</ion-label>
+      <ion-datetime [(ngModel)]="asignatura.horarios.practica.horaInicio" presentation="time"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Hora Fin (Práctica)</ion-label>
+      <ion-datetime [(ngModel)]="asignatura.horarios.practica.horaFin" presentation="time"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Salas (Práctica)</ion-label>
+      <ion-input [(ngModel)]="asignatura.horarios.practica.salas[0]"></ion-input>
+    </ion-item>
+  </div>
+
+  <ion-item>
+    <ion-label position="stacked">Días</ion-label>
+    <ion-select [(ngModel)]="asignatura.dias" multiple="true">
+      <ion-select-option *ngFor="let dia of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes','Sábado','Domingo']">
+        {{ dia }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Alumnos</ion-label>
+    <ion-select [(ngModel)]="alumnosSeleccionados" multiple="true">
+      <ion-select-option *ngFor="let alumno of listaAlumnos" [value]="alumno.uid">
+        {{ alumno.nombre }} {{ alumno.apellido }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-button expand="block" (click)="crearAsignatura()">Crear Asignatura</ion-button>
 </ion-content>

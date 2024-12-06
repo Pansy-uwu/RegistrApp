@@ -7,7 +7,6 @@ import { AuthService } from '../../services/auth.service';
     selector: 'app-profesor-dashboard',
     templateUrl: './profesor-dashboard.page.html',
     styleUrls: ['./profesor-dashboard.page.scss'],
-    standalone: false
 })
 export class ProfesorDashboardPage implements OnInit {
   asignaturas: any[] = [];
