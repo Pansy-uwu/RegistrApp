@@ -11,6 +11,8 @@ import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
 import { AngularFireAnalyticsModule } from '@angular/fire/compat/analytics';
 import { environment } from '../environments/environment';
 
+import { QrCodeModule } from 'ng-qrcode';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -24,7 +26,9 @@ import { environment } from '../environments/environment';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,       // Módulo para autenticación
     AngularFireDatabaseModule,   // Módulo para Realtime Database
-    AngularFireAnalyticsModule   // Módulo para Analytics (opcional)
+    AngularFireAnalyticsModule,   // Módulo para Analytics (opcional)
+
+    QrCodeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

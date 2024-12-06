@@ -6,7 +6,6 @@ import { FirebaseService } from '../../services/firebase.service';
     selector: 'app-crear-asignatura',
     templateUrl: './crear-asignatura.page.html',
     styleUrls: ['./crear-asignatura.page.scss'],
-    standalone: false
 })
 export class CrearAsignaturaPage implements OnInit {
   asignatura = {
