@@ -1,13 +1,43 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>alumno-dashboard</ion-title>
+    <ion-title>Dashboard del Alumno</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">alumno-dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <!-- Mostrar el nombre del alumno y la fecha -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Bienvenido, {{ alumnoName }}</ion-card-title>
+      <p>Fecha actual: {{ currentDate }}</p>
+      <p>Hora actual: {{ currentTime }}</p>
+    </ion-card-header>
+  </ion-card>
+
+  <!-- Lista de asignaturas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Tus Asignaturas</ion-card-title>
+    </ion-card-header>
+    <ion-list>
+      <ion-item *ngFor="let asignatura of asignaturas">
+        <ion-label>
+          <h2>{{ asignatura.nombre }}</h2>
+          <p>Sección: {{ asignatura.seccion }}</p>
+        </ion-label>
+        <ion-button slot="end" color="primary" (click)="scanQRCode(asignatura.id)">
+          Escanear QR
+        </ion-button>
+        <ion-button slot="end" color="secondary" (click)="verHistorial(asignatura.id)">
+          Ver Historial
+        </ion-button>
+      </ion-item>
+    </ion-list>
+    
+  </ion-card>
 </ion-content>
