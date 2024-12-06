@@ -1,13 +1,33 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>profesor-dashboard</ion-title>
+    <ion-title>Dashboard del Profesor</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="primary" (click)="irACrearAsignatura()">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profesor-dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let asignatura of asignaturas">
+      <ion-label>{{ asignatura.nombre }}</ion-label>
+
+      <!-- Botón para generar QR -->
+      <ion-button
+        slot="end"
+        color="primary"
+        [disabled]="isQRGenerated[asignatura.id]"
+        (click)="irAGenerarQR(asignatura.id)"
+      >
+        Generar QR
+      </ion-button>
+
+      <!-- Botón para ver historial -->
+      <ion-button slot="end" color="secondary" (click)="verHistorial(asignatura.id)">
+        Historial
+      </ion-button>
+    </ion-item>
+  </ion-list>
 </ion-content>
