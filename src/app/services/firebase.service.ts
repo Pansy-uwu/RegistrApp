@@ -159,6 +159,18 @@ export class FirebaseService {
   getData<T>(path: string): Observable<T | null> {
     return this.db.object<T>(path).valueChanges();
   }
+
+  getDataOnce<T>(path: string): Promise<T | null> {
+    console.log(`Intentando obtener datos desde la ruta: ${path}`);
+    return this.db.object<T>(path).query.once('value').then(snapshot => {
+      console.log(`Datos obtenidos desde ${path}:`, snapshot.val());
+      return snapshot.val();
+    }).catch(error => {
+      console.error(`Error al obtener datos desde ${path}:`, error);
+      throw error;
+    });
+  }
+  
   
   // Usamos `update` si los datos existen, para no sobrescribir la ruta
   addData(path: string, data: any) {
@@ -177,19 +189,22 @@ export class FirebaseService {
     return this.db.list(path).push(data).then(() => {});
   }
 
-  async updateData(path: string, data: any): Promise<void> {
+  getDatabaseRef(path: string) {
+    console.log('Obteniendo referencia de la base de datos:', path);
+    const ref = this.db.database.ref(path);
+    console.log('Referencia obtenida:', ref);
+    return ref;
+  }
+
+  async updateData(path: string, data: any) {
+    console.log('Actualizando datos en Firebase:', path, data);
     try {
-      console.log(`Actualizando datos en Firebase en: ${path}`);
-      await this.db.object(path).update(data);
-      console.log('Datos actualizados con éxito en:', path);
+      await this.db.database.ref(path).update(data);
+      console.log('Datos actualizados correctamente.');
     } catch (error) {
-      console.error('Error al actualizar los datos:', error);
+      console.error('Error al actualizar datos en Firebase:', error);
       throw error;
     }
-  }
-  getDatabaseRef(path: string): any {
-    console.log(`Obteniendo referencia de Firebase en: ${path}`);
-    return this.db.database.ref(path); // Asegúrate de devolver la referencia directa de la base de datos
   }
   
   // Eliminar datos

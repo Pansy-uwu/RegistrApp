@@ -1,13 +1,47 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>generate-qr</ion-title>
+    <ion-title>Generar QR</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">generate-qr</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <!-- Código QR -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Código QR</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <!-- Aquí iría el componente QR si lo necesitas -->
+      <qr-code [value]="qrCodeData" [size]="256"></qr-code>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de Estudiantes Registrados -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Estudiantes Registrados</ion-card-title>
+    </ion-card-header>
+    <ion-list>
+      <ion-item *ngFor="let estudiante of estudiantesRegistrados">
+        <ion-label>
+          <h3>{{ estudiante.nombre }}</h3>
+          <p>UID: {{ estudiante.uid }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+
+  <!-- Mensaje de No Estudiantes Registrados -->
+  <ion-card *ngIf="estudiantesRegistrados.length === 0">
+    <ion-card-content>
+      <ion-text color="danger">
+        No hay estudiantes registrados para esta asignatura.
+      </ion-text>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Botón para Guardar Asistencia -->
+  <ion-button expand="full" color="success" (click)="guardarAsistencia()">
+    Guardar Asistencia
+  </ion-button>
 </ion-content>

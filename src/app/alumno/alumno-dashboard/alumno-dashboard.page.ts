@@ -174,6 +174,11 @@ export class AlumnoDashboardPage implements OnInit {
   scanQRCode(asignaturaId: string) {
     if (this.horariosDisponibles[asignaturaId]) {
       console.log('Habilitado para escanear QR en asignatura:', asignaturaId);
+      console.log('Parámetros enviados:');
+      console.log('Asignatura ID:', asignaturaId);
+      console.log('User UID:', this.userUID);
+      console.log('User Email:', this.userEmail);
+  
       this.router.navigate(['/scan-qr'], {
         queryParams: {
           asignaturaId: asignaturaId,
@@ -185,6 +190,7 @@ export class AlumnoDashboardPage implements OnInit {
       alert('No es el momento adecuado para escanear el QR. Verifique el horario de la clase.');
     }
   }
+  
 
   // Ver historial de asistencia
   verHistorial(asignaturaId: string) {
