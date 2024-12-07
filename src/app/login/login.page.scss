@@ -1,0 +1,98 @@
+:host {
+    --ion-background-color: #ffffff; /* Fondo blanco */
+  }
+  
+  .login-logo {
+    width: 200px; /* Ancho de la imagen más grande */
+    height: auto; /* Mantiene la proporción original */
+    margin-bottom: 24px; /* Más espacio entre la imagen y el primer campo */
+    display: block;
+    margin-left: auto;
+    margin-right: auto; /* Centra la imagen horizontalmente */
+  }
+  
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ocupar toda la pantalla */
+    padding: 16px;
+    background-color: #ffffff; /* Fondo blanco total */
+    z-index: 1; /* Asegura que esté sobre los círculos */
+  }
+  
+  ion-content {
+    --background: #ffffff; /* Fondo blanco del contenido */
+    position: relative; /* Necesario para posicionar los círculos relativos al contenido */
+  }
+  
+  ion-list {
+    width: 100%;
+    max-width: 400px; /* Ancho máximo */
+    background-color: #ffffff; /* Fondo blanco */
+  }
+  
+  ion-item {
+    --background: transparent !important; /* Fondo transparente */
+    --border-color: #002955; /* Borde azul */
+    border: 2px solid #002955; /* Borde azul sólido */
+    border-radius: 8px; /* Bordes redondeados */
+    margin-bottom: 16px; /* Espaciado entre campos */
+    box-shadow: none; /* Sin sombras */
+  }
+  
+  ion-label {
+    color: #002955 !important; /* Texto negro siempre visible */
+    font-size: 14px; /* Tamaño ajustado para legibilidad */
+    font-family: 'Arial', sans-serif; /* Cambia la fuente aquí */
+  }
+  
+  ion-input {
+    --background: transparent; /* Fondo transparente */
+    --color: #002955; /* Texto negro */
+    --placeholder-color: #002955; /* Placeholder negro */
+    font-size: 14px; /* Ajustar tamaño del texto */
+  }
+  
+  ::placeholder {
+    color: #000000 !important; /* Placeholder negro siempre */
+    opacity: 1; /* Asegurar visibilidad */
+  }
+  
+  ion-button {
+    margin-top: 16px;
+    width: 100%;
+    max-width: 400px;
+    font-family: 'Arial', sans-serif; /* Cambia la fuente aquí */
+    --background: #FFD700; /* Botones amarillos */
+    --color: #002955; /* Texto negro */
+  }
+  
+  .background-circles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Detrás del contenido */
+    overflow: hidden; /* Ocultar cualquier parte fuera del contenedor */
+  }
+  
+  .circle {
+    position: absolute;
+    width: 280px; /* Tamaño del círculo */
+    height: 280px;
+    border-radius: 50%; /* Hace el div redondo */
+    background-color: #FFD700; /* Amarillo */
+  }
+  
+  .top-left {
+    top: -75px; /* Ajusta la posición superior */
+    left: -75px; /* Ajusta la posición izquierda */
+  }
+  
+  .bottom-right {
+    bottom: -75px; /* Ajusta la posición inferior */
+    right: -75px; /* Ajusta la posición derecha */
+  }
+  
