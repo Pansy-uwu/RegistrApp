@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "859955846618",
+    "firebase_url": "https://registrarapp-786e0-default-rtdb.firebaseio.com",
+    "project_id": "registrarapp-786e0",
+    "storage_bucket": "registrarapp-786e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859955846618:android:9be1452de499f4307ff4e3",
+        "android_client_info": {
+          "package_name": "Registrar.App_"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWOxzV-w3ZaqgpNlClJlOdiIPbnKNzKxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
