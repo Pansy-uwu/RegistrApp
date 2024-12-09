@@ -8,6 +8,8 @@ import { AlumnoDashboardPageRoutingModule } from './alumno-dashboard-routing.mod
 
 import { AlumnoDashboardPage } from './alumno-dashboard.page';
 
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -15,6 +17,7 @@ import { AlumnoDashboardPage } from './alumno-dashboard.page';
     IonicModule,
     AlumnoDashboardPageRoutingModule
   ],
-  declarations: [AlumnoDashboardPage]
+  declarations: [AlumnoDashboardPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA], // Agregar esta línea
 })
 export class AlumnoDashboardPageModule {}

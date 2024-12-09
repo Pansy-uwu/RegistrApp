@@ -1,43 +1,91 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Dashboard del Alumno</ion-title>
-    <ion-buttons slot="end">
-      <ion-button color="danger" (click)="logout()">
-        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+  <ion-toolbar class="custom-header">
+    <ion-grid>
+      <ion-row class="header-row">
+        <!-- Ícono del avatar -->
+        <ion-col size="auto" class="icon-container">
+          <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+        </ion-col>
+
+        <!-- Texto del saludo y rol -->
+        <ion-col class="text-container">
+          <h2 class="header-text">Hola {{ alumnoName }}!</h2>
+          <p class="role-text">{{ userRole }}</p>
+        </ion-col>
+
+        <!-- Ícono del botón de cerrar sesión -->
+        <ion-col size="auto" class="icon-container">
+          <ion-button class="logout-button" (click)="logout()" fill="clear">
+            <ion-icon class="logout-icon" slot="icon-only" name="log-out-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Mostrar el nombre del alumno y la fecha -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Bienvenido, {{ alumnoName }}</ion-card-title>
-      <p>Fecha actual: {{ currentDate }}</p>
-      <p>Hora actual: {{ currentTime }}</p>
-    </ion-card-header>
-  </ion-card>
 
-  <!-- Lista de asignaturas -->
-  <ion-card>
+<ion-content class="content-background">
+  <!-- Asignaturas del día -->
+  <ion-card class="carousel-card">
     <ion-card-header>
-      <ion-card-title>Tus Asignaturas</ion-card-title>
+      <ion-card-title>Asignaturas del Día</ion-card-title>
     </ion-card-header>
-    <ion-list>
-      <ion-item *ngFor="let asignatura of asignaturas">
-        <ion-label>
-          <h2>{{ asignatura.nombre }}</h2>
-          <p>Sección: {{ asignatura.seccion }}</p>
-        </ion-label>
-        <ion-button slot="end" color="primary" (click)="scanQRCode(asignatura.id)">
-          Escanear QR
-        </ion-button>
-        <ion-button slot="end" color="secondary" (click)="verHistorial(asignatura.id)">
-          Ver Historial
-        </ion-button>
-      </ion-item>
-    </ion-list>
-    
+    <ion-card-content>
+      <div class="horizontal-scroll">
+          <ion-card class="asignatura-dia-card" *ngFor="let asignatura of asignaturasDelDia">
+            <ion-card-header>
+              <ion-card-title>{{ asignatura.nombre }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p>Sección: {{ asignatura.seccion }}</p>
+              <ion-button expand="full" (click)="scanQRCode(asignatura.id)">
+                Scan QR
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+      </div>
+    </ion-card-content>
   </ion-card>
+  
+  
+
+<!-- Carrusel de todas las asignaturas -->
+<ion-card class="list-card">
+  <ion-card-header>
+    <ion-card-title>Mis Asignaturas</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <div class="asignatura-list">
+      <ion-card class="asignatura-card" *ngFor="let asignatura of asignaturas">
+        <ion-card-header>
+          <ion-card-title>{{ asignatura.nombre }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>Sección:</strong> {{ asignatura.seccion }}</p>
+
+          <!-- Mostrar los días de la asignatura -->
+          <p>
+            <strong>Días:</strong> 
+            <span *ngFor="let dia of asignatura.dias; let i = index">
+              {{ dia }}<span *ngIf="i < asignatura.dias.length - 1">, </span>
+            </span>
+          </p>
+
+          <!-- Mostrar los horarios de la asignatura -->
+          <p *ngIf="asignatura.horarios && asignatura.horarios[asignatura.tipoClase]">
+            <strong>Horario:</strong> 
+            {{ asignatura.horarios[asignatura.tipoClase]?.horaInicio }} - {{ asignatura.horarios[asignatura.tipoClase]?.horaFin }}
+          </p>
+
+          <ion-button expand="full" (click)="verHistorial(asignatura.id)">
+            Ver Asistencia
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </ion-card-content>
+</ion-card>
+
+  
 </ion-content>

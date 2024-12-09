@@ -82,46 +82,63 @@ export class CrearAsignaturaPage implements OnInit {
   }
 
   // Crear asignatura
-  async crearAsignatura() {
-    console.log('Iniciando creación de asignatura...');
-    if (!this.profesorUID) {
-      alert('No se encontró el UID del profesor.');
-      return;
-    }
-  
-    if (!this.validarCamposLlenos()) {
-      alert('Por favor, complete todos los campos obligatorios.');
-      return;
-    }
-  
-    try {
-      console.log('Intentando incrementar el contador...');
-      const nuevoNumero = await this.incrementarContador();
-      console.log('Nuevo número obtenido del contador:', nuevoNumero);
-  
-      const nuevoIdAsignatura = `ASG${nuevoNumero}`;
-      console.log(`Nuevo ID generado para la asignatura: ${nuevoIdAsignatura}`);
-  
-      // Convertir alumnos seleccionados al formato correcto
-      const alumnosBooleanos: { [key: string]: boolean } = {};
-      this.alumnosSeleccionados.forEach((uid) => {
-        alumnosBooleanos[uid] = true;
-      });
-      this.asignatura.alumnos = alumnosBooleanos;
-  
-      console.log('Asignatura procesada antes de guardar:', this.asignatura);
-  
-      const asignaturaPath = `asignaturas/${nuevoIdAsignatura}`;
-      await this.firebaseService.setData(asignaturaPath, this.asignatura);
-  
-      alert(`Asignatura creada con éxito. ID: ${nuevoIdAsignatura}`);
-      this.router.navigate(['/profesor-dashboard']);
-    } catch (error) {
-      console.error('Error al crear la asignatura:', error);
-      alert('Hubo un error al crear la asignatura.');
-    }
+ // Crear asignatura
+async crearAsignatura() {
+  console.log('Iniciando creación de asignatura...');
+
+  if (!this.profesorUID) {
+    alert('No se encontró el UID del profesor.');
+    return;
   }
-  
+
+  if (!this.validarCamposLlenos()) {
+    alert('Por favor, complete todos los campos obligatorios.');
+    return;
+  }
+
+  try {
+    console.log('Intentando incrementar el contador...');
+    const nuevoNumero = await this.incrementarContador();
+    console.log('Nuevo número obtenido del contador:', nuevoNumero);
+
+    const nuevoIdAsignatura = `ASG${nuevoNumero}`;
+    console.log(`Nuevo ID generado para la asignatura: ${nuevoIdAsignatura}`);
+
+    // Convertir alumnos seleccionados al formato correcto
+    const alumnosBooleanos: { [key: string]: boolean } = {};
+    this.alumnosSeleccionados.forEach((uid) => {
+      alumnosBooleanos[uid] = true;
+    });
+    this.asignatura.alumnos = alumnosBooleanos;
+
+    // ** Formatear las horas de inicio y fin antes de guardar **
+    if (this.asignatura.horarios.teorica.horaInicio) {
+      this.asignatura.horarios.teorica.horaInicio = this.formatearHora(this.asignatura.horarios.teorica.horaInicio);
+    }
+    if (this.asignatura.horarios.teorica.horaFin) {
+      this.asignatura.horarios.teorica.horaFin = this.formatearHora(this.asignatura.horarios.teorica.horaFin);
+    }
+
+    if (this.asignatura.horarios.practica.horaInicio) {
+      this.asignatura.horarios.practica.horaInicio = this.formatearHora(this.asignatura.horarios.practica.horaInicio);
+    }
+    if (this.asignatura.horarios.practica.horaFin) {
+      this.asignatura.horarios.practica.horaFin = this.formatearHora(this.asignatura.horarios.practica.horaFin);
+    }
+
+    console.log('Asignatura procesada antes de guardar:', this.asignatura);
+
+    const asignaturaPath = `asignaturas/${nuevoIdAsignatura}`;
+    await this.firebaseService.setData(asignaturaPath, this.asignatura);
+
+    alert(`Asignatura creada con éxito. ID: ${nuevoIdAsignatura}`);
+    this.router.navigate(['/profesor-dashboard']);
+  } catch (error) {
+    console.error('Error al crear la asignatura:', error);
+    alert('Hubo un error al crear la asignatura.');
+  }
+}
+
   
 
 // Incrementar el contador de asignaturas de manera atómica
@@ -173,16 +190,24 @@ async incrementarContador(): Promise<number> {
     return true;
   }
 
-  // Función para formatear las horas en el formato 00:00 (solo hora y minutos)
+// Función para formatear las horas en el formato 00:00 (solo hora y minutos)
 formatearHora(hora: string): string {
   if (!hora) return '00:00'; // Si la hora no está definida, devolvemos 00:00 por defecto
 
-  // Extraer solo la parte de la hora y minutos, eliminando la fecha y segundos
-  const time = hora.split('T')[1]; // Tomamos la parte después de "T" (hora: minuto: segundo)
-  const [h, m] = time.split(':'); // Dividimos por los dos puntos ":"
-
-  // Aseguramos que tanto la hora como los minutos tengan dos dígitos
-  return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+  try {
+    // Extraer solo la parte de la hora y minutos, eliminando la fecha y segundos si existen
+    const timePart = hora.includes('T') ? hora.split('T')[1] : hora; // Si tiene formato ISO, toma la parte después de la 'T'
+    const [h, m] = timePart.split(':'); // Dividir la hora por los dos puntos ":"
+    
+    // Aseguramos que tanto la hora como los minutos tengan dos dígitos
+    const horaFormateada = `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+    
+    console.log(`Hora original: ${hora} | Hora formateada: ${horaFormateada}`);
+    return horaFormateada;
+  } catch (error) {
+    console.error('Error al formatear la hora:', error);
+    return '00:00'; // Devolver 00:00 en caso de error
+  }
 }
 
 }
