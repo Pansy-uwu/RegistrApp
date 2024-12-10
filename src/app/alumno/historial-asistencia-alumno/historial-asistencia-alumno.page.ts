@@ -15,6 +15,7 @@ export class HistorialAsistenciaAlumnoPage implements OnInit {
   userEmail: string = ''; // Correo del usuario autenticado
   userUID: string = ''; // UID del usuario en Firebase
   mensajeError: string = ''; // Mensaje en caso de error
+  nombreAsignatura: string= '';
 
   constructor(
     private router: Router,
@@ -30,12 +31,34 @@ export class HistorialAsistenciaAlumnoPage implements OnInit {
         this.asignaturaId = params['asignaturaId'];
         console.log('Asignatura ID recibido:', this.asignaturaId);
         this.checkAuthentication();
+        this.loadAsignaturaNombre(); // Cargar el nombre de la asignatura
       } else {
         console.error('No se proporcionó asignaturaId');
         this.router.navigate(['/alumno-dashboard']);
       }
     });
   }
+
+  loadAsignaturaNombre() {
+    const asignaturaPath = `asignaturas/${this.asignaturaId}`;
+    this.firebaseService.getData<{ nombre: string }>(asignaturaPath).subscribe({
+      next: (data) => {
+        if (data && data.nombre) {
+          console.log('Nombre de la asignatura:', data.nombre);
+          this.nombreAsignatura = data.nombre;
+        } else {
+          console.error('No se encontró el nombre de la asignatura.');
+          this.mensajeError = 'No se encontró el nombre de la asignatura.';
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar el nombre de la asignatura desde Firebase:', err);
+        this.mensajeError = 'Hubo un error al cargar el nombre de la asignatura.';
+      },
+    });
+  }
+  
+  
 
   checkAuthentication() {
     this.afAuth.authState.subscribe((user) => {

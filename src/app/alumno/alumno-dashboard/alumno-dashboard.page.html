@@ -39,8 +39,10 @@
             </ion-card-header>
             <ion-card-content>
               <p>Sección: {{ asignatura.seccion }}</p>
-              <ion-button expand="full" (click)="scanQRCode(asignatura.id)">
-                Scan QR
+              <ion-button 
+              (click)="scanQRCode(asignatura.id)" 
+              [disabled]="!horariosDisponibles[asignatura.id]">
+              Escanear QR
               </ion-button>
             </ion-card-content>
           </ion-card>

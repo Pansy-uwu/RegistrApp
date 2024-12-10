@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Barcode, BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-alumno-dashboard',
@@ -9,35 +11,135 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
   styleUrls: ['./alumno-dashboard.page.scss'],
 })
 export class AlumnoDashboardPage implements OnInit {
-  alumnoName: string = ''; // Nombre del alumno
-  userRole: string = ''; // Rol del usuario
-  asignaturas: any[] = []; // Lista de asignaturas
-  asignaturaHoy: any = null; // Asignatura del día actual
-  currentDate: string = ''; // Fecha actual
-  currentTime: string = ''; // Hora actual
-  userEmail: string = ''; // Correo del usuario
-  userUID: string = ''; // UID del usuario en Realtime Database
-  diaActual: string = ''; // Día de la semana actual
-  asignaturasDelDia: any[] = []; // Lista de asignaturas correspondientes al día actual
-  horariosDisponibles: { [key: string]: boolean } = {}; // Disponibilidad de horarios para escanear QR
+  alumnoName: string = ''; 
+  userRole: string = ''; 
+  asignaturas: any[] = []; 
+  currentDate: string = ''; 
+  currentTime: string = ''; 
+  userEmail: string = ''; 
+  userUID: string = ''; 
+  diaActual: string = ''; 
+  asignaturasDelDia: any[] = []; 
+  horariosDisponibles: { [key: string]: boolean } = {}; 
+  isSupported = false; 
+  barcodes: Barcode[] = []; 
+  claseId: string = ''; 
+  isAttendanceRegistered: boolean = false; 
 
   constructor(
     private firebaseService: FirebaseService,
     private router: Router,
-    private afAuth: AngularFireAuth
+    private afAuth: AngularFireAuth,
+    private alertController: AlertController
   ) {}
 
-  ngOnInit() {
-    this.checkAuthentication(); // Verificar autenticación y cargar datos
-    this.setCurrentDate(); // Establecer la fecha actual
-    this.setCurrentTime(); // Establecer la hora actual
-    this.diaActual = this.obtenerDiaSemana(new Date().getDay()); // Obtener el día actual
+  async ngOnInit() {
+    await this.checkScannerSupport();
+    this.checkAuthentication();
+    this.setCurrentDate();
+    this.setCurrentTime();
+    this.diaActual = this.obtenerDiaSemana(new Date().getDay());
 
-    // Actualizar la hora cada minuto
     setInterval(() => {
       this.setCurrentTime();
-      this.actualizarHorariosDisponibles(); // Actualizar disponibilidad de horarios cada minuto
+      this.actualizarHorariosDisponibles();
     }, 60000);
+  }
+
+  // Verificar si el escáner está soportado
+  async checkScannerSupport() {
+    try {
+      const supported = await BarcodeScanner.isSupported();
+      this.isSupported = supported.supported;
+      if (!this.isSupported) {
+        alert('El escáner de códigos de barras no está soportado en este dispositivo.');
+      }
+    } catch (error) {
+      console.error('Error al verificar soporte del escáner:', error);
+      alert('Error al verificar soporte del escáner.');
+    }
+  }
+
+  // Escanear QR desde el dashboard
+  async scanQRCode(asignaturaId: string) {
+    console.log('Iniciando escaneo para la asignatura:', asignaturaId);
+    this.claseId = asignaturaId;
+
+    const moduleAvailable = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+    if (!moduleAvailable.available) {
+      console.log('Instalando el módulo Google Barcode Scanner...');
+      await BarcodeScanner.installGoogleBarcodeScannerModule();
+      alert('El módulo Google Barcode Scanner ha sido instalado correctamente. Intenta escanear nuevamente.');
+      return;
+    }
+
+    const granted = await this.requestPermissions();
+    if (!granted) {
+      this.presentPermissionAlert();
+      return;
+    }
+
+    try {
+      const { barcodes } = await BarcodeScanner.scan({
+        formats: [BarcodeFormat.QrCode],
+      });
+
+      if (barcodes.length > 0) {
+        const barcodeValue = barcodes[0].rawValue;
+        this.barcodes.push(...barcodes);
+        await this.onQRCodeScanned(barcodeValue);
+      } else {
+        alert('No se detectó ningún código QR.');
+      }
+    } catch (error) {
+      alert('Error al escanear el código QR.');
+    }
+  }
+
+  async onQRCodeScanned(qrCode: string) {
+    if (!this.claseId || !this.userUID || !this.userEmail) {
+      alert('Faltan datos para registrar la asistencia.');
+      return;
+    }
+    await this.registerAttendance();
+  }
+
+  async registerAttendance() {
+    try {
+      const fecha = new Date();
+      const fechaFormateada = fecha.toLocaleDateString('en-CA');
+
+      const refPath = `/asignaturas/${this.claseId}/asistencias/${this.userUID}`;
+      const asistenciaAlumno = {
+        estado: 'Presente',
+        fecha: fechaFormateada,
+        timestamp: fecha.toISOString(),
+      };
+
+      await this.firebaseService.updateData(refPath, asistenciaAlumno);
+      alert('Asistencia registrada con éxito.');
+    } catch (error) {
+      alert('Error al registrar la asistencia.');
+    }
+  }
+
+  async requestPermissions(): Promise<boolean> {
+    try {
+      const { camera } = await BarcodeScanner.requestPermissions();
+      return camera === 'granted' || camera === 'limited';
+    } catch (error) {
+      alert('Error al solicitar permisos.');
+      return false;
+    }
+  }
+
+  async presentPermissionAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Permiso denegado',
+      message: 'Por favor, concede permiso para usar la cámara.',
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   // Verificar autenticación y cargar datos del usuario
@@ -68,18 +170,6 @@ export class AlumnoDashboardPage implements OnInit {
         this.router.navigate(['/login']);
       }
     });
-  }
-
-  // Establecer la fecha actual
-  setCurrentDate() {
-    const today = new Date();
-    this.currentDate = today.toLocaleDateString(); // Formato: dd/mm/yyyy
-  }
-
-  // Establecer la hora actual
-  setCurrentTime() {
-    const now = new Date();
-    this.currentTime = now.toLocaleTimeString(); // Formato: HH:mm:ss
   }
 
   cargarAsignaturas(uid: string) {
@@ -115,24 +205,21 @@ export class AlumnoDashboardPage implements OnInit {
     });
   }
 
-  obtenerDiaSemana(dia: number): string {
-    const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-    return dias[dia].toLowerCase(); // Convertir el día a minúsculas
+   // Establecer la fecha actual
+  setCurrentDate() {
+    const today = new Date();
+    this.currentDate = today.toLocaleDateString();
   }
 
-  // Escanear QR
-  scanQRCode(asignaturaId: string) {
-    if (this.horariosDisponibles[asignaturaId]) {
-      this.router.navigate(['/scan-qr'], {
-        queryParams: {
-          asignaturaId: asignaturaId,
-          userUID: this.userUID,
-          userEmail: this.userEmail,
-        },
-      });
-    } else {
-      alert('No es el momento adecuado para escanear el QR.');
-    }
+    // Establecer la hora actual
+  setCurrentTime() {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString();
+  }
+
+  obtenerDiaSemana(dia: number): string {
+    const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    return dias[dia].toLowerCase();
   }
 
   // Ver historial de asistencia
@@ -142,14 +229,12 @@ export class AlumnoDashboardPage implements OnInit {
     });
   }
 
-  // Cerrar sesión
   logout() {
     this.afAuth.signOut().then(() => {
       this.router.navigate(['/login']);
     });
   }
 
-  // Actualizar estado de disponibilidad de horarios para escanear QR
 // Actualizar estado de disponibilidad de horarios para escanear QR
 actualizarHorariosDisponibles() {
   const fechaHoy = new Date();
@@ -200,4 +285,5 @@ actualizarHorariosDisponibles() {
     const [hh, mm] = hora.split(':').map(Number); // Convertir "HH:mm" a [HH, mm]
     return hh * 60 + mm; // Convertir a minutos
   }
+
 }

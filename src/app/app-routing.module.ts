@@ -12,10 +12,6 @@ const routes: Routes = [
     loadChildren: () => import('./alumno/alumno-dashboard/alumno-dashboard.module').then( m => m.AlumnoDashboardPageModule)
   },
   {
-    path: 'scan-qr',
-    loadChildren: () => import('./alumno/scan-qr/scan-qr.module').then( m => m.ScanQrPageModule)
-  },
-  {
     path: 'historial-asistencia-alumno',
     loadChildren: () => import('./alumno/historial-asistencia-alumno/historial-asistencia-alumno.module').then( m => m.HistorialAsistenciaAlumnoPageModule)
   },
