@@ -1,20 +1,24 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Historial de Asistencia</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
-  <div *ngIf="mensajeError" class="error-message">
-    {{ mensajeError }}
-  </div>
-
-  <ion-list *ngIf="!mensajeError && historial.length > 0">
-    <ion-item *ngFor="let registro of historial">
-      <ion-label>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>
+        Historial de Asistencia
+        <div class="subtitle">{{ nombreAsignatura }}</div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-list>
+    <ion-card *ngFor="let registro of historial" class="custom-card">
+      <ion-card-content>
         <h2>{{ registro.clase }}</h2>
-        <p>Estado: {{ registro.estado }}</p>
-      </ion-label>
-    </ion-item>
+        <p>Estado: 
+          <span [class.ausente]="registro.estado === 'Ausente'" 
+                [class.presente]="registro.estado === 'Presente'">
+            {{ registro.estado }}
+          </span>
+        </p>
+      </ion-card-content>
+    </ion-card>
   </ion-list>
 </ion-content>

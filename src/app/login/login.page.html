@@ -1,5 +1,14 @@
 <ion-content>
+  <div class="background-circles">
+    <div class="circle top-left"></div>
+    <div class="circle bottom-right"></div>
+  </div>
+
+  <!-- Contenedor del formulario -->
   <div class="login-container">
+    <!-- Imagen del logo -->
+    <img src="assets/Images/LOGO.png" alt="Logo" class="login-logo" />
+    
     <ion-list>
       <ion-item>
         <ion-label position="floating">Correo electrónico</ion-label>
@@ -13,6 +22,4 @@
     <ion-button expand="full" (click)="onSubmit()">Iniciar Sesión</ion-button>
     <ion-button expand="full" (click)="recoverPassword()">Recuperar Contraseña</ion-button>
   </div>
-
-  
 </ion-content>

@@ -1,196 +1,226 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Barcode, BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
+import { AlertController } from '@ionic/angular';
 
 @Component({
-    selector: 'app-alumno-dashboard',
-    templateUrl: './alumno-dashboard.page.html',
-    styleUrls: ['./alumno-dashboard.page.scss'],
-    standalone: false
+  selector: 'app-alumno-dashboard',
+  templateUrl: './alumno-dashboard.page.html',
+  styleUrls: ['./alumno-dashboard.page.scss'],
 })
 export class AlumnoDashboardPage implements OnInit {
-  alumnoName: string = ''; // Nombre del alumno
-  asignaturas: any[] = []; // Lista de asignaturas
-  currentDate: string = ''; // Fecha actual
-  currentTime: string = ''; // Hora actual
-  userEmail: string = ''; // Correo del usuario
-  userUID: string = ''; // UID del usuario en Realtime Database
-  horariosDisponibles: { [key: string]: boolean } = {}; // Estado de disponibilidad para escanear QR
-  diaActual: string = ''; // Día de la semana actual
+  alumnoName: string = ''; 
+  userRole: string = ''; 
+  asignaturas: any[] = []; 
+  currentDate: string = ''; 
+  currentTime: string = ''; 
+  userEmail: string = ''; 
+  userUID: string = ''; 
+  diaActual: string = ''; 
+  asignaturasDelDia: any[] = []; 
+  horariosDisponibles: { [key: string]: boolean } = {}; 
+  isSupported = false; 
+  barcodes: Barcode[] = []; 
+  claseId: string = ''; 
+  isAttendanceRegistered: boolean = false; 
 
   constructor(
     private firebaseService: FirebaseService,
     private router: Router,
-    private afAuth: AngularFireAuth
+    private afAuth: AngularFireAuth,
+    private alertController: AlertController
   ) {}
 
-  ngOnInit() {
-    this.checkAuthentication(); // Verificar autenticación
-    this.setCurrentDate(); // Establecer la fecha actual
-    this.setCurrentTime(); // Establecer la hora actual
-    this.diaActual = this.obtenerDiaSemana(new Date().getDay()); // Obtener el día actual
+  async ngOnInit() {
+    await this.checkScannerSupport();
+    this.checkAuthentication();
+    this.setCurrentDate();
+    this.setCurrentTime();
+    this.diaActual = this.obtenerDiaSemana(new Date().getDay());
 
-    // Actualizar la hora cada minuto
     setInterval(() => {
       this.setCurrentTime();
-      this.actualizarHorariosDisponibles(); // Actualizar disponibilidad de escaneo
+      this.actualizarHorariosDisponibles();
     }, 60000);
   }
 
-  // Verificar si el usuario está autenticado y obtener UID desde la base de datos
+  // Verificar si el escáner está soportado
+  async checkScannerSupport() {
+    try {
+      const supported = await BarcodeScanner.isSupported();
+      this.isSupported = supported.supported;
+      if (!this.isSupported) {
+        alert('El escáner de códigos de barras no está soportado en este dispositivo.');
+      }
+    } catch (error) {
+      console.error('Error al verificar soporte del escáner:', error);
+      alert('Error al verificar soporte del escáner.');
+    }
+  }
+
+  // Escanear QR desde el dashboard
+  async scanQRCode(asignaturaId: string) {
+    console.log('Iniciando escaneo para la asignatura:', asignaturaId);
+    this.claseId = asignaturaId;
+
+    const moduleAvailable = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+    if (!moduleAvailable.available) {
+      console.log('Instalando el módulo Google Barcode Scanner...');
+      await BarcodeScanner.installGoogleBarcodeScannerModule();
+      alert('El módulo Google Barcode Scanner ha sido instalado correctamente. Intenta escanear nuevamente.');
+      return;
+    }
+
+    const granted = await this.requestPermissions();
+    if (!granted) {
+      this.presentPermissionAlert();
+      return;
+    }
+
+    try {
+      const { barcodes } = await BarcodeScanner.scan({
+        formats: [BarcodeFormat.QrCode],
+      });
+
+      if (barcodes.length > 0) {
+        const barcodeValue = barcodes[0].rawValue;
+        this.barcodes.push(...barcodes);
+        await this.onQRCodeScanned(barcodeValue);
+      } else {
+        alert('No se detectó ningún código QR.');
+      }
+    } catch (error) {
+      alert('Error al escanear el código QR.');
+    }
+  }
+
+  async onQRCodeScanned(qrCode: string) {
+    if (!this.claseId || !this.userUID || !this.userEmail) {
+      alert('Faltan datos para registrar la asistencia.');
+      return;
+    }
+    await this.registerAttendance();
+  }
+
+  async registerAttendance() {
+    try {
+      const fecha = new Date();
+      const fechaFormateada = fecha.toLocaleDateString('en-CA');
+
+      const refPath = `/asignaturas/${this.claseId}/asistencias/${this.userUID}`;
+      const asistenciaAlumno = {
+        estado: 'Presente',
+        fecha: fechaFormateada,
+        timestamp: fecha.toISOString(),
+      };
+
+      await this.firebaseService.updateData(refPath, asistenciaAlumno);
+      alert('Asistencia registrada con éxito.');
+    } catch (error) {
+      alert('Error al registrar la asistencia.');
+    }
+  }
+
+  async requestPermissions(): Promise<boolean> {
+    try {
+      const { camera } = await BarcodeScanner.requestPermissions();
+      return camera === 'granted' || camera === 'limited';
+    } catch (error) {
+      alert('Error al solicitar permisos.');
+      return false;
+    }
+  }
+
+  async presentPermissionAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Permiso denegado',
+      message: 'Por favor, concede permiso para usar la cámara.',
+      buttons: ['OK'],
+    });
+    await alert.present();
+  }
+
+  // Verificar autenticación y cargar datos del usuario
   checkAuthentication() {
     this.afAuth.authState.subscribe((user) => {
       if (user && user.email) {
-        this.userEmail = user.email; // Guardar el correo del usuario
-        console.log('Usuario autenticado:', this.userEmail);
-  
-        // Obtener el UID desde la base de datos
+        this.userEmail = user.email;
+
+        // Obtener datos del usuario desde Firebase
         this.firebaseService.getData<{ [key: string]: any }>('usuarios').subscribe({
           next: (usuarios) => {
             if (usuarios) {
               const usuarioEncontrado = Object.entries(usuarios).find(
-                ([key, value]: [string, any]) => value.correo === this.userEmail
+                ([key, value]) => value.correo === this.userEmail
               );
-  
+
               if (usuarioEncontrado) {
                 const [uid, userData] = usuarioEncontrado;
-                this.userUID = uid; // Guardar el UID del alumno desde la base de datos
-                this.alumnoName = userData.nombre; // Guardar el nombre del alumno
-                console.log('UID obtenido desde la base de datos:', this.userUID);
-                this.cargarAsignaturas(); // Cargar asignaturas después de obtener el UID
-              } else {
-                console.error('No se encontró el usuario en la base de datos.');
+                this.userUID = uid;
+                this.alumnoName = userData.nombre;
+                this.userRole = userData.role;
+                this.cargarAsignaturas(uid); // Cargar asignaturas después de obtener datos
               }
-            } else {
-              console.error('No hay datos en la base de datos.');
             }
-          },
-          error: (error) => {
-            console.error('Error al obtener datos de usuarios:', error);
           },
         });
       } else {
-        console.log('Usuario no autenticado');
-        this.router.navigate(['/login']); // Redirigir al login si no está autenticado
+        this.router.navigate(['/login']);
       }
     });
   }
-  
 
-  // Establecer la fecha actual
-  setCurrentDate() {
-    const today = new Date();
-    this.currentDate = today.toLocaleDateString(); // Formato: 'dd/mm/yyyy'
-  }
-
-  // Establecer la hora actual
-  setCurrentTime() {
-    const now = new Date();
-    this.currentTime = now.toLocaleTimeString(); // Formato: 'HH:mm:ss'
-  }
-
-  // Método para cargar asignaturas
-  cargarAsignaturas() {
-    if (!this.userUID) {
-      console.error('No se pudo cargar las asignaturas, UID no encontrado.');
-      return;
-    }
-
-    console.log('Cargando asignaturas para el alumno con UID:', this.userUID);
-
+  cargarAsignaturas(uid: string) {
     this.firebaseService.getData<{ [key: string]: any }>('asignaturas').subscribe({
       next: (data) => {
-        console.log('Datos de asignaturas recibidos:', data);
         if (data) {
-          this.asignaturas = Object.entries(data)
-            .filter(([key, value]) => value.alumnos && value.alumnos[this.userUID]) // Filtrar asignaturas del alumno
+          // Filtrar asignaturas asociadas al usuario
+          const asignaturas = Object.entries(data)
+            .filter(([key, value]) => value.alumnos && value.alumnos[uid])
             .map(([key, value]) => ({
               id: key,
               ...value,
             }));
 
-          // Filtrar asignaturas para mostrar solo las que se dictan hoy
-          this.asignaturas = this.asignaturas.filter((asignatura) => {
-            // Comparar los días de la asignatura con el día actual
-            const diasAsignatura = asignatura.dias.map((dia: string) => dia.toLowerCase());
+          this.asignaturas = asignaturas;
+
+          // Normalizar días y filtrar asignaturas correspondientes al día actual
+          this.asignaturasDelDia = asignaturas.filter((asignatura) => {
+            const diasAsignatura = asignatura.dias.map((dia: string) => dia.trim().toLowerCase());
             return diasAsignatura.includes(this.diaActual.toLowerCase());
           });
 
-          console.log('Asignaturas para el día actual:', this.asignaturas);
+          this.actualizarHorariosDisponibles(); // Actualizar disponibilidad de horarios al cargar asignaturas
 
-          // Inicializar estado de horarios disponibles
-          this.actualizarHorariosDisponibles();
         } else {
-          console.log('No se encontraron asignaturas para este alumno.');
           this.asignaturas = [];
+          this.asignaturasDelDia = [];
         }
       },
       error: (err) => {
         console.error('Error al cargar asignaturas:', err);
-        alert('Hubo un error al cargar las asignaturas.');
       },
     });
   }
 
-  // Actualizar estado de disponibilidad de horarios para escanear QR
-  actualizarHorariosDisponibles() {
-    const fechaHoy = new Date();
-    const horaActual = fechaHoy.getHours() * 60 + fechaHoy.getMinutes(); // Convertir hora actual a minutos desde medianoche
-
-    this.asignaturas.forEach((asignatura) => {
-      const horarios = asignatura.horarios[asignatura.tipoClase]; // Obtener horario según tipo de clase (teórica o práctica)
-
-      // Verificar si el día actual está disponible en la asignatura
-      const diaDisponible = asignatura.dias
-        .map((dia: string) => dia.toLowerCase()) // Convertir los días de la asignatura a minúsculas
-        .includes(this.diaActual.toLowerCase()); // Comparar con el día actual
-
-      // Convertir las horas de inicio y fin de la clase a minutos desde medianoche
-      const horaInicio = this.convertirAHoraEnMinutos(horarios.horaInicio);
-      const horaFin = this.convertirAHoraEnMinutos(horarios.horaFin);
-
-      // Verificar si la hora actual está dentro del rango de horarios de la asignatura
-      const estaDentroDelHorario = horaActual >= horaInicio && horaActual <= horaFin;
-
-      // Habilitar escaneo si está dentro del horario y día disponible
-      this.horariosDisponibles[asignatura.id] = diaDisponible && estaDentroDelHorario;
-    });
+   // Establecer la fecha actual
+  setCurrentDate() {
+    const today = new Date();
+    this.currentDate = today.toLocaleDateString();
   }
 
-  // Convertir una hora en formato HH:mm a minutos desde medianoche
-  convertirAHoraEnMinutos(hora: string): number {
-    const [hh, mm] = hora.split(':').map(Number); // Convertir "HH:mm" a [HH, mm]
-    return hh * 60 + mm; // Convertir a minutos
+    // Establecer la hora actual
+  setCurrentTime() {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString();
   }
 
-  // Obtener el nombre del día según el valor numérico (0-6)
   obtenerDiaSemana(dia: number): string {
     const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-    return dias[dia].toLowerCase(); // Asegurar que esté en minúsculas
+    return dias[dia].toLowerCase();
   }
-
-  // Escanear QR de la asignatura
-  scanQRCode(asignaturaId: string) {
-    if (this.horariosDisponibles[asignaturaId]) {
-      console.log('Habilitado para escanear QR en asignatura:', asignaturaId);
-      console.log('Parámetros enviados:');
-      console.log('Asignatura ID:', asignaturaId);
-      console.log('User UID:', this.userUID);
-      console.log('User Email:', this.userEmail);
-  
-      this.router.navigate(['/scan-qr'], {
-        queryParams: {
-          asignaturaId: asignaturaId,
-          userUID: this.userUID,
-          userEmail: this.userEmail,
-        },
-      });
-    } else {
-      alert('No es el momento adecuado para escanear el QR. Verifique el horario de la clase.');
-    }
-  }
-  
 
   // Ver historial de asistencia
   verHistorial(asignaturaId: string) {
@@ -199,10 +229,61 @@ export class AlumnoDashboardPage implements OnInit {
     });
   }
 
-  // Cerrar sesión
   logout() {
     this.afAuth.signOut().then(() => {
       this.router.navigate(['/login']);
     });
   }
+
+// Actualizar estado de disponibilidad de horarios para escanear QR
+actualizarHorariosDisponibles() {
+  const fechaHoy = new Date();
+  const horaActual = fechaHoy.getHours() * 60 + fechaHoy.getMinutes(); // Convertir hora actual a minutos desde medianoche
+
+  this.asignaturas.forEach((asignatura) => {
+    // Verificar si el tipo de clase está definido y si la asignatura tiene horarios para el tipo de clase
+    const horarios = asignatura.horarios?.[asignatura.tipoClase]; 
+
+    // Validar si los horarios existen antes de proceder
+    if (!horarios) {
+      console.warn(`La asignatura con ID ${asignatura.id} no tiene horarios definidos para el tipo de clase: ${asignatura.tipoClase}`);
+      this.horariosDisponibles[asignatura.id] = false;
+      return; // Saltar a la siguiente asignatura
+    }
+
+    // Verificar si el día actual está disponible en la asignatura
+    const diaDisponible = asignatura.dias
+      ?.map((dia: string) => dia.toLowerCase()) // Convertir los días de la asignatura a minúsculas
+      .includes(this.diaActual.toLowerCase()); // Comparar con el día actual
+
+    if (!diaDisponible) {
+      console.warn(`El día de hoy (${this.diaActual}) no está disponible para la asignatura con ID ${asignatura.id}`);
+      this.horariosDisponibles[asignatura.id] = false;
+      return; // Saltar a la siguiente asignatura
+    }
+
+    // Convertir las horas de inicio y fin de la clase a minutos desde medianoche
+    const horaInicio = horarios.horaInicio ? this.convertirAHoraEnMinutos(horarios.horaInicio) : null;
+    const horaFin = horarios.horaFin ? this.convertirAHoraEnMinutos(horarios.horaFin) : null;
+
+    if (horaInicio === null || horaFin === null) {
+      console.warn(`La asignatura con ID ${asignatura.id} tiene horas de inicio o fin no definidas`);
+      this.horariosDisponibles[asignatura.id] = false;
+      return; // Saltar a la siguiente asignatura
+    }
+
+    // Verificar si la hora actual está dentro del rango de horarios de la asignatura
+    const estaDentroDelHorario = horaActual >= horaInicio && horaActual <= horaFin;
+
+    // Habilitar escaneo si está dentro del horario y día disponible
+    this.horariosDisponibles[asignatura.id] = diaDisponible && estaDentroDelHorario;
+  });
+}
+
+  // Convertir una hora en formato HH:mm a minutos desde medianoche
+  convertirAHoraEnMinutos(hora: string): number {
+    const [hh, mm] = hora.split(':').map(Number); // Convertir "HH:mm" a [HH, mm]
+    return hh * 60 + mm; // Convertir a minutos
+  }
+
 }
