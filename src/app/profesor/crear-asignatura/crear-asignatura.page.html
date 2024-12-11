@@ -45,16 +45,9 @@
 
   <!-- Horarios de Práctica -->
   <div *ngIf="asignatura.tipoClase === 'practica' || asignatura.tipoClase === 'mixta'">
-    <ion-item>
+    <ion-item> 
       <ion-label position="stacked">Hora Inicio (Práctica)</ion-label>
-      <ion-datetime 
-        placeholder="Selecciona hora de inicio"
-        [(ngModel)]="asignatura.horarios.practica.horaInicio"
-        presentation="time"
-        displayFormat="HH:mm" 
-        min="08:00"            
-        max="20:00"            
-      ></ion-datetime>
+      <ion-datetime placeholder="Selecciona hora de inicio" [(ngModel)]="asignatura.horarios.teorica.horaInicio" presentation="time"></ion-datetime>
     </ion-item>
     
     <ion-item>

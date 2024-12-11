@@ -143,21 +143,54 @@ export class CrearAsignaturaPage implements OnInit {
     if (!nombre || !seccion || (!Array.isArray(dias) && (!dias.teorica || !dias.practica))) {
       return false;
     }
-
+  
     const horariosValidos =
       tipoClase === 'teorica'
-        ? !!horarios.teorica.horaInicio && !!horarios.teorica.horaFin && horarios.teorica.salas.length > 0
+        ? this.validarHorario(horarios.teorica.horaInicio, horarios.teorica.horaFin) &&
+          horarios.teorica.salas.length > 0
         : tipoClase === 'practica'
-          ? !!horarios.practica.horaInicio && !!horarios.practica.horaFin && horarios.practica.salas.length > 0
-          : !!horarios.teorica.horaInicio &&
-            !!horarios.teorica.horaFin &&
+          ? this.validarHorario(horarios.practica.horaInicio, horarios.practica.horaFin) &&
+            horarios.practica.salas.length > 0
+          : this.validarHorario(horarios.teorica.horaInicio, horarios.teorica.horaFin) &&
             horarios.teorica.salas.length > 0 &&
-            !!horarios.practica.horaInicio &&
-            !!horarios.practica.horaFin &&
+            this.validarHorario(horarios.practica.horaInicio, horarios.practica.horaFin) &&
             horarios.practica.salas.length > 0;
-
+  
     return horariosValidos;
   }
+  
+
+  validarHorario(horaInicio: string, horaFin: string): boolean {
+    const inicio = this.convertirHora(horaInicio);
+    const fin = this.convertirHora(horaFin);
+    const limiteInicio = this.convertirHora('08:30');
+    const limiteFin = this.convertirHora('22:00');
+  
+    if (inicio === null || fin === null || limiteInicio === null || limiteFin === null) {
+      alert('Error al validar los horarios. Asegúrate de que todos los horarios estén en un formato válido.');
+      return false;
+    }
+  
+    if (inicio < limiteInicio || fin > limiteFin) {
+      alert('Los horarios deben estar entre las 8:30 y las 22:00.');
+      return false;
+    }
+  
+    if (inicio >= fin) {
+      alert('La hora de inicio debe ser menor que la hora de fin.');
+      return false;
+    }
+  
+    return true;
+  }
+  
+
+  convertirHora(hora: string): number | null {
+    if (!hora) return null;
+    const [horas, minutos] = hora.split(':').map(Number);
+    return horas * 60 + minutos; // Convertir a minutos para facilitar la comparación
+  }
+  
 
   formatearHora(hora: string): string {
     if (!hora) return '00:00';
