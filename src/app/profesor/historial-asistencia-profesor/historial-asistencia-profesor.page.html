@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Historial de Asistencia</ion-title>
+    <ion-title>
+      Historial de Asistencia
+      <div class="asignatura-subtitulo">{{ asignaturaNombre }}</div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -22,7 +25,9 @@
       <ion-list *ngIf="clase.visible">
         <ion-item *ngFor="let estudiante of clase.estudiantes">
           <ion-label>
-            <p>{{ estudiante.nombre }} - {{ estudiante.estado }}</p>
+            <p [attr.estado]="estudiante.estado">
+              {{ estudiante.nombre }} - {{ estudiante.estado }}
+            </p>
           </ion-label>
         </ion-item>
       </ion-list>

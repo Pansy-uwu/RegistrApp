@@ -34,7 +34,11 @@ const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
+  },  {
+    path: 'modificar-asignatura',
+    loadChildren: () => import('./profesor/modificar-asignatura/modificar-asignatura.module').then( m => m.ModificarAsignaturaPageModule)
   },
+
 ];
 
 @NgModule({

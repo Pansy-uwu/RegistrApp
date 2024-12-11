@@ -165,7 +165,7 @@ export class ProfesorDashboardPage implements OnInit {
   }
   
   
-  
+
   actualizarHorariosDisponibles() {
     const horaActualEnMinutos = new Date().getHours() * 60 + new Date().getMinutes();
 

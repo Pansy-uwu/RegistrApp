@@ -1,0 +1,92 @@
+ion-header {
+    background-color: #002b5c; /* Azul oscuro */
+    color: white;
+    text-align: center;
+  }
+  
+  ion-toolbar {
+    --background: #002b5c; /* Azul oscuro */
+    --color: white;
+  }
+  
+  ion-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .asignatura-subtitulo {
+    font-size: 0.9rem;
+    color: #ffffff; /* Blanco */
+    margin-top: 4px;
+    font-weight: 300;
+  }
+  
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px;
+  }
+  
+  ion-content {
+    --background: #f4f4f4; /* Fondo claro */
+  }
+  
+  ion-list {
+    padding: 10px;
+    background-color: #ffffff; /* Fondo blanco */
+  }
+  
+  ion-item { 
+    --background: #002b5c;
+  }
+
+  ion-item-group {
+    margin: 10px 0;
+    background-color: #002b5c; /* Azul oscuro */
+    border-radius: 8px;
+    padding: 10px;
+    color: white;
+  }
+  
+  ion-item-group ion-label h2 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  ion-item-group ion-button {
+    --background: white;
+    --color: #002b5c;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  ion-item-group ion-list {
+    margin-top: 10px;
+    background-color: #002b5c; /* Fondo gris claro */
+    border-radius: 8px;
+    padding: 10px;
+  }
+  
+  ion-item-group ion-item {
+    background-color: transparent; /* Fondo transparente */
+  }
+  
+  ion-item-group ion-label p {
+    font-size: 1rem;
+    margin: 0;
+    color: #aed4ff; /* Azul oscuro */
+  }
+  
+  ion-item-group ion-label p[estado="Presente"] {
+    color: green;
+    font-weight: bold;
+  }
+  
+  ion-item-group ion-label p[estado="Ausente"] {
+    color: red;
+    font-weight: bold;
+  }
+  

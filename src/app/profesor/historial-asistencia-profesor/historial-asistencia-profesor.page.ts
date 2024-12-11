@@ -26,6 +26,7 @@ export class HistorialAsistenciaProfesorPage implements OnInit {
   asignaturaId!: string;
   historial: Clase[] = [];
   mensajeError: string = '';
+  asignaturaNombre: string = ''; // Nueva variable para el nombre de la asignatura
 
   constructor(private route: ActivatedRoute, private firebaseService: FirebaseService) {}
 
@@ -44,41 +45,78 @@ export class HistorialAsistenciaProfesorPage implements OnInit {
   }
 
   cargarHistorial() {
-    const historialPath = `asignaturas/${this.asignaturaId}/asistencias`;
-    console.log(`Cargando historial desde la ruta: ${historialPath}`);
+    const asignaturaPath = `asignaturas/${this.asignaturaId}`;
+    const usuariosPath = `usuarios`;
   
-    this.firebaseService
-      .getData<{ [claseId: string]: { [uid: string]: { nombre: string; estado: string; fecha: string; timestamp: string } } }>(historialPath)
-      .subscribe({
-        next: (data) => {
-          console.log('Datos recibidos del historial:', data);
+    console.log(`Cargando datos desde la ruta: ${asignaturaPath}`);
   
-          if (data) {
-            this.historial = Object.entries(data).map(([claseId, estudiantes]) => ({
-              id: claseId, // Ejemplo: "Clase 1"
-              fecha: this.formatFecha(Object.values(estudiantes)[0]?.fecha || ''), // Formatear la fecha
-              estudiantes: Object.entries(estudiantes).map(([uid, estudiante]) => ({
-                uid, // Se toma directamente de la clave
-                nombre: estudiante.nombre,
-                estado: estudiante.estado,
-                timestamp: estudiante.timestamp,
-              })),
-              visible: false, // El menú está inicialmente cerrado
-            }));
+    this.firebaseService.getData<any>(asignaturaPath).subscribe({
+      next: (asignatura) => {
+        console.log('Datos de la asignatura:', asignatura);
   
-            console.log('Historial procesado:', this.historial);
+        if (asignatura) {
+          this.asignaturaNombre = asignatura.nombre || 'Asignatura'; // Guardar el nombre de la asignatura
+  
+          if (asignatura.alumnos && asignatura.asistencias) {
+            const alumnos = Object.keys(asignatura.alumnos); // UIDs de los alumnos registrados
+            const asistencias = asignatura.asistencias;
+  
+            // Obtener los nombres de los usuarios
+            this.firebaseService.getData<{ [uid: string]: { nombre: string; apellido: string } } | null>(usuariosPath).subscribe({
+              next: (usuarios) => {
+                console.log('Datos de los usuarios:', usuarios);
+  
+                if (usuarios) {
+                  // Procesar cada clase en las asistencias
+                  this.historial = Object.entries(asistencias).map(([claseId, registros]) => {
+                    const estudiantes: Estudiante[] = alumnos.map((uid) => {
+                      const asistencia = (registros as { [uid: string]: { nombre: string; estado: string; fecha: string; timestamp: string } })[uid];
+                      const nombreCompleto = usuarios[uid] ? `${usuarios[uid].nombre} ${usuarios[uid].apellido}` : 'Desconocido';
+  
+                      return {
+                        uid,
+                        nombre: asistencia?.nombre || nombreCompleto, // Priorizar el nombre de la asistencia, luego usar el de usuarios
+                        estado: asistencia ? asistencia.estado : 'Ausente', // Si no hay registro, marcar como "Ausente"
+                        timestamp: asistencia?.timestamp || '',
+                      };
+                    });
+  
+                    return {
+                      id: claseId, // Ejemplo: "Clase 1"
+                      fecha: this.formatFecha(Object.values(registros as object)[0]?.fecha || ''), // Fecha de la clase
+                      estudiantes,
+                      visible: false, // El menú está inicialmente cerrado
+                    };
+                  });
+  
+                  console.log('Historial procesado:', this.historial);
+                } else {
+                  this.mensajeError = 'No se encontraron datos de usuarios.';
+                  console.warn(this.mensajeError);
+                }
+              },
+              error: (err) => {
+                this.mensajeError = 'Error al cargar los datos de los usuarios.';
+                console.error(this.mensajeError, err);
+              },
+            });
           } else {
-            this.mensajeError = 'No se encontraron registros de asistencia para esta asignatura.';
+            this.mensajeError = 'No se encontraron registros de alumnos o asistencias para esta asignatura.';
             console.warn(this.mensajeError);
           }
-        },
-        error: (err) => {
-          this.mensajeError = 'Ocurrió un error al cargar el historial de asistencia.';
-          console.error(this.mensajeError, err);
-        },
-      });
+        } else {
+          this.mensajeError = 'La asignatura no existe.';
+          console.warn(this.mensajeError);
+        }
+      },
+      error: (err) => {
+        this.mensajeError = 'Ocurrió un error al cargar los datos de la asignatura.';
+        console.error(this.mensajeError, err);
+      },
+    });
   }
-
+  
+  
   formatFecha(fecha: string): string {
     if (!fecha) {
       return '';
