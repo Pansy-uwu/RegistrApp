@@ -1,18 +1,164 @@
-.asignaturas-container {
-    margin: 16px;
-  }
-  
-  ion-card {
-    margin-bottom: 16px;
-  }
-  
-  ion-card-title {
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-  
-  ion-card-subtitle {
-    font-size: 1em;
-    color: #555;
-  }
-  
+/* Estilos Generales del Header */
+.custom-header {
+  height: 130px; /* Altura ajustada para incluir el rol */
+  --background: #002955; /* Fondo azul oscuro */
+  border-radius: 10px; /* Bordes redondeados */
+  display: flex;
+  align-items: center; /* Centrar contenido verticalmente */
+  padding: 0 15px; /* Espaciado interno */
+}
+
+.header-row {
+  display: flex;
+  align-items: center; /* Centrar verticalmente */
+  justify-content: space-between; /* Distribuir elementos horizontalmente */
+  width: 100%; /* Asegurar que ocupe todo el ancho */
+}
+
+.icon-container {
+  display: flex; /* Asegura que los elementos sean flexibles */
+  align-items: center; /* Centrar verticalmente los íconos */
+  justify-content: center; /* Centrar horizontalmente */
+}
+
+.text-container {
+  display: flex; /* Habilita diseño en flexbox */
+  flex-direction: column; /* Coloca los elementos (nombre y rol) en columnas */
+  align-items: flex-start; /* Alinea el texto a la izquierda */
+  justify-content: center; /* Centra verticalmente el contenido */
+}
+
+.header-text {
+  margin: 0; /* Quita el margen predeterminado */
+  font-size: 1.5rem; /* Tamaño grande para el texto principal */
+  color: #ffffff; /* Texto blanco */
+}
+
+.role-text {
+  margin: 0; /* Quita el margen predeterminado */
+  font-size: 1rem; /* Tamaño más pequeño para el rol */
+  color: #b3b3b3; /* Texto gris claro */
+  opacity: 0.8; /* Hace que el texto sea más tenue */
+}
+
+/* Ícono de Avatar */
+.avatar-icon {
+  color: #ffffff !important; /* Asegura que el ícono sea blanco */
+  font-size: 60px; /* Tamaño grande del ícono de usuario */
+}
+
+/* Botón de Logout */
+.logout-button {
+  --background: transparent; /* Fondo transparente */
+  --color: #ffffff; /* Texto blanco */
+}
+
+.logout-icon {
+  font-size: 30px; /* Tamaño del ícono de logout */
+}
+
+.create-button {
+  --background: transparent; /* Fondo transparente */
+  --color: #ffffff; /* Texto blanco */
+}
+
+
+.create-icon {
+  font-size: 30px; /* Tamaño del ícono de logout */
+}
+
+
+/* Fondo del contenido */
+.content-background {
+  --background: #ffffff; /* Fondo blanco */
+  color: #000000; /* Texto predeterminado gris oscuro */
+  padding: 15px; /* Espaciado interno alrededor del contenido */
+  overflow-y: auto; /* Habilita el desplazamiento vertical si es necesario */
+}
+
+/* Carrusel: Asignaturas del Día */
+.carousel-card {
+  --background: #d9d9d9; /* Fondo gris claro */
+  border-radius: 12px; /* Bordes redondeados */
+  padding: 10px; /* Espaciado interno */
+  margin-bottom: 5px; /* Espacio inferior */
+}
+
+.horizontal-scroll {
+  display: flex; /* Alinea las tarjetas en fila */
+  overflow-x: auto; /* Permite el desplazamiento horizontal */
+  scroll-snap-type: x mandatory; /* Activa el snap para desplazamiento */
+  gap: 15px; /* Espacio entre las tarjetas */
+  padding: 5px; /* Espaciado interno alrededor */
+}
+
+.asignatura-dia-card {
+  flex: 0 0 auto; /* Las tarjetas no colapsan */
+  scroll-snap-align: start; /* Alinea cada tarjeta al inicio del contenedor */
+  width: 80%; /* Ocupa el 80% del ancho del contenedor */
+  max-width: 300px; /* Tamaño máximo de las tarjetas */
+  background-color: #002955 !important;
+  color: #ffffff; /* Texto blanco para mayor contraste */
+  border-radius: 10px; /* Bordes redondeados */
+  text-align: center; /* Centra el contenido de texto */
+  margin: 10px; /* Espaciado externo */
+  padding: 10px; /* Espaciado interno */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para efecto de profundidad */
+}
+
+/* Títulos dentro de las tarjetas */
+.asignatura-dia-card ion-card-title {
+  color: #ffffff; /* Texto blanco para el título */
+
+}
+
+/* Párrafos dentro de las tarjetas */
+.asignatura-dia-card p {
+  color: #c3c3c3; /* Texto gris claro para el detalle */
+}
+
+/* Lista Vertical: Mis Asignaturas */
+.list-card {
+  --background: #d9d9d9; /* Fondo gris claro */
+  border-radius: 12px; /* Bordes redondeados */
+  margin-bottom: 15px; /* Espacio inferior entre tarjetas */
+}
+
+.asignatura-list {
+  display: flex; /* Usa flexbox para alinear elementos */
+  flex-direction: column; /* Apila las tarjetas verticalmente */
+  gap: 15px; /* Espacio entre cada tarjeta */
+}
+
+.asignatura-card {
+  --background: #002955; /* Fondo gris */
+  border-radius: 10px; /* Bordes redondeados */
+  padding: 10px; /* Espaciado interno */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para efecto de profundidad */
+  color: #ffffff; /* Texto negro */
+}
+
+/* Títulos dentro de las tarjetas */
+.asignatura-card ion-card-title {
+  color: #ffffff; /* Texto blanco para el título */
+}
+
+/* Títulos en las tarjetas */
+ion-card-title {
+  color: #002955; /* Títulos negros */
+}
+
+/* Texto en los párrafos */
+ion-card-content p {
+  color: #c3c3c3; /* Texto gris */
+}
+
+/* Botones generales */
+ion-button {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 400px;
+  font-family: 'Arial', sans-serif; /* Cambia la fuente aquí */
+  --background: #FFD700; /* Botones amarillos */
+  --color: #002955; /* Texto negro */
+}

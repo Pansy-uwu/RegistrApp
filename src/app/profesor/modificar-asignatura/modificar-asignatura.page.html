@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Crear Asignatura</ion-title>
+    <ion-title>Modificar Asignatura</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -29,7 +29,7 @@
 
   <!-- Horarios de Teoría -->
   <div *ngIf="asignatura.tipoClase === 'teorica' || asignatura.tipoClase === 'mixta'">
-    <ion-item> 
+    <ion-item>
       <ion-label position="stacked">Hora Inicio (Teórica)</ion-label>
       <ion-datetime placeholder="Selecciona hora de inicio" [(ngModel)]="asignatura.horarios.teorica.horaInicio" presentation="time"></ion-datetime>
     </ion-item>
@@ -45,11 +45,10 @@
 
   <!-- Horarios de Práctica -->
   <div *ngIf="asignatura.tipoClase === 'practica' || asignatura.tipoClase === 'mixta'">
-    <ion-item> 
+    <ion-item>
       <ion-label position="stacked">Hora Inicio (Práctica)</ion-label>
-      <ion-datetime placeholder="Selecciona hora de inicio" [(ngModel)]="asignatura.horarios.teorica.horaInicio" presentation="time"></ion-datetime>
+      <ion-datetime placeholder="Selecciona hora de inicio" [(ngModel)]="asignatura.horarios.practica.horaInicio" presentation="time"></ion-datetime>
     </ion-item>
-    
     <ion-item>
       <ion-label position="stacked">Hora Fin (Práctica)</ion-label>
       <ion-datetime placeholder="Selecciona hora de fin" [(ngModel)]="asignatura.horarios.practica.horaFin" presentation="time"></ion-datetime>
@@ -71,7 +70,8 @@
   </ion-item>
 
   <!-- Selección de Alumnos -->
-  <ion-item>
+  <ion-spinner *ngIf="isLoading"></ion-spinner>
+  <ion-item *ngIf="!isLoading">
     <ion-label position="stacked">Alumnos</ion-label>
     <ion-select placeholder="Selecciona alumnos" [(ngModel)]="alumnosSeleccionados" multiple="true">
       <ion-select-option *ngFor="let alumno of listaAlumnos" [value]="alumno.uid">
@@ -79,7 +79,8 @@
       </ion-select-option>
     </ion-select>
   </ion-item>
+  
 
-  <!-- Botón para crear asignatura -->
-  <ion-button expand="block" (click)="crearAsignatura()">Crear Asignatura</ion-button>
+  <!-- Botón para guardar cambios -->
+  <ion-button expand="block" (click)="modificarAsignatura()">Guardar Cambios</ion-button>
 </ion-content>

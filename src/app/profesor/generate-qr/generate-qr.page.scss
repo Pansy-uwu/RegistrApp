@@ -1,0 +1,129 @@
+/* Estilos generales */
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+
+ion-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Asegura que el contenido respete el espacio del encabezado */
+    padding-top: 8px; /* Separación mínima */
+    margin: 0; /* Elimina márgenes */
+    --background: white;
+    box-sizing: border-box;
+    height: 100%; /* Resta el espacio ocupado por el header (aproximadamente 56px) */
+}
+
+/* Estilo del toolbar */
+ion-toolbar {
+    --background: #002b5c; /* Azul oscuro */
+    --color: white;
+    margin: 0;
+    padding: 4px 16px; /* Ajuste mínimo para que respire */
+}
+  
+  ion-title {
+    margin: 0;
+    padding: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  ion-label.asignatura-nombre {
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    display: block; /* Asegura que respete el flujo del contenido */
+    text-align: center;
+    color: #ffffff; /* Blanco */
+  }
+  
+  /* Estilos para las tarjetas (centradas) */
+  ion-card {
+    background-color: #d9d9d9;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    margin: 10px 0; /* Reduce el margen superior e inferior */
+    padding: 0px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+
+ion-label {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+  }
+  
+  
+  ion-card ion-card-title {
+    color: #002855; /* Azul oscuro */
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  /* QR centrado */
+  qr-code {
+    display: block;
+    margin: 10px auto;
+  }
+  
+  /* Lista de estudiantes */
+  ion-list {
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto; /* Hacer scroll si hay muchos estudiantes */
+    background-color: #d9d9d9; /* Gris claro */
+    border-radius: 8px;
+    padding: 8px;
+  }
+  
+  ion-item {
+    border-bottom: 1px solid #ffffff;
+    background-color: #d9d9d9;
+    --background: #002855;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  
+  ion-label h3 {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  ion-label p {
+    display: none; /* Ocultar el UID */
+  }
+  
+  /* Botón para guardar asistencia */
+  ion-button {
+    width: 100%;
+    max-width: 450px;
+    margin-top: 8px; /* Reduce el espacio entre el botón y los demás elementos */
+    height: 48px;
+    background-color: #4caf50; /* Verde */
+    color: white !important;
+    --background: #4caf50;
+    font-weight: bold;
+    border-radius: 9px;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+    flex-shrink: 0; /* Evita que el botón se reduzca */  
+}
+  

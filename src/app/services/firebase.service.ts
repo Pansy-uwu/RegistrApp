@@ -196,16 +196,10 @@ export class FirebaseService {
     return ref;
   }
 
-  async updateData(path: string, data: any) {
-    console.log('Actualizando datos en Firebase:', path, data);
-    try {
-      await this.db.database.ref(path).update(data);
-      console.log('Datos actualizados correctamente.');
-    } catch (error) {
-      console.error('Error al actualizar datos en Firebase:', error);
-      throw error;
-    }
+  updateData(path: string, data: any): Promise<void> {
+    return this.db.object(path).update(data);
   }
+  
   
   // Eliminar datos
   deleteData(path: string): Promise<void> {
