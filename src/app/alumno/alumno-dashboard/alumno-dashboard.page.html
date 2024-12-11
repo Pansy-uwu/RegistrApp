@@ -18,39 +18,35 @@
     </ion-grid>
   </ion-toolbar>
 </ion-header>
-
 <ion-content class="content-background">
- <!-- Asignaturas del Día -->
-<ion-card class="carousel-card">
-  <ion-card-header>
-    <ion-card-title>Asignaturas del Día</ion-card-title>
-  </ion-card-header>
-  <ion-card-content>
-    <div class="horizontal-scroll">
-      <ion-card class="asignatura-dia-card" *ngFor="let asignatura of asignaturasDelDia">
-        <ion-card-header>
-          <ion-card-title>{{ asignatura.nombre }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p><strong>Sección:</strong> {{ asignatura.seccion }}</p>
-          <p><strong>Tipo de Clase:</strong> {{ asignatura.tipoClaseHoy }}</p>
-          <p><strong>Horario:</strong> 
-            {{ asignatura.horarioHoy?.horaInicio || 'N/A' }} - {{ asignatura.horarioHoy?.horaFin || 'N/A' }}
-          </p>
-          <ion-button
-            expand="full"
-            [disabled]="!horariosDisponibles[asignatura.id]"
-            (click)="scanQRCode(asignatura.id)"
-          >
-            Escanear QR
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </div>
-  </ion-card-content>
-</ion-card>
-
-
+  <!-- Asignaturas del Día -->
+  <ion-card class="carousel-card">
+    <ion-card-header>
+      <ion-card-title>Asignaturas del Día</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="horizontal-scroll">
+        <ion-card class="asignatura-dia-card" *ngFor="let asignatura of asignaturasDelDia">
+          <ion-card-header>
+            <ion-card-title>{{ asignatura.nombre }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p><strong>Sección:</strong> {{ asignatura.seccion }}</p>
+            <p><strong>Tipo de Clase:</strong> {{ asignatura.tipoClaseHoy }}</p>
+            <p><strong>Horario:</strong> {{ asignatura.horarioHoy?.horaInicio || 'N/A' }} - {{ asignatura.horarioHoy?.horaFin || 'N/A' }}</p>
+            <ion-button
+              expand="full"
+              [disabled]="!horariosDisponibles[asignatura.id]"
+              (click)="scanQRCode(asignatura.id)"
+            >
+              Generar QR
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+        
+      </div>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Lista de todas las asignaturas -->
   <ion-card class="list-card">
@@ -65,28 +61,38 @@
           </ion-card-header>
           <ion-card-content>
             <p><strong>Sección:</strong> {{ asignatura.seccion }}</p>
-            <p>
-              <strong>Días Teóricos:</strong>
-              {{ asignatura.diasTeoricos?.length ? asignatura.diasTeoricos.join(', ') : 'N/A' }}
+            
+            <!-- Mostrar Días Teóricos si corresponden -->
+            <p *ngIf="asignatura.diasTeoricos?.length">
+              <strong>Días Teóricos:</strong> {{ asignatura.diasTeoricos.join(', ') }}
             </p>
+            
+            <!-- Mostrar Días Prácticos si corresponden -->
             <p *ngIf="asignatura.diasPracticos?.length">
-              <strong>Días Prácticos:</strong>
-              {{ asignatura.diasPracticos.join(', ') }}
+              <strong>Días Prácticos:</strong> {{ asignatura.diasPracticos.join(', ') }}
             </p>
-            <p>
+            
+            <!-- Mostrar Horario Teórico si corresponde -->
+            <p *ngIf="asignatura.horarioTeorico?.horaInicio && asignatura.horarioTeorico?.horaInicio !== 'N/A'">
               <strong>Horario Teórico:</strong>
-              {{ asignatura.horarioTeorico?.horaInicio }} - {{ asignatura.horarioTeorico?.horaFin }}
+              {{ asignatura.horarioTeorico.horaInicio }} - {{ asignatura.horarioTeorico.horaFin }}
             </p>
-            <p *ngIf="asignatura.horarioPractico?.horaInicio && asignatura.horarioPractico?.horaFin && asignatura.horarioPractico.horaInicio !== 'N/A'">
+            
+            <!-- Mostrar Horario Práctico si corresponde -->
+            <p *ngIf="asignatura.horarioPractico?.horaInicio && asignatura.horarioPractico?.horaFin && asignatura.tipoClase !== 'teorica'">
               <strong>Horario Práctico:</strong>
               {{ asignatura.horarioPractico.horaInicio }} - {{ asignatura.horarioPractico.horaFin }}
             </p>
-            <ion-button expand="full"  (click)="verHistorial(asignatura.id)">
+            
+            <!-- Botones -->
+            <ion-button expand="full" (click)="verHistorial(asignatura.id)">
               Ver Asistencia
             </ion-button>
           </ion-card-content>
-          
         </ion-card>
+        
+        
+        
       </div>
     </ion-card-content>
   </ion-card>

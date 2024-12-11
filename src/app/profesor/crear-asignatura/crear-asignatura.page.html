@@ -5,16 +5,19 @@
 </ion-header>
 
 <ion-content>
+  <!-- Nombre de la asignatura -->
   <ion-item>
     <ion-label position="stacked">Nombre</ion-label>
     <ion-input [(ngModel)]="asignatura.nombre"></ion-input>
   </ion-item>
 
+  <!-- Sección -->
   <ion-item>
     <ion-label position="stacked">Sección</ion-label>
     <ion-input [(ngModel)]="asignatura.seccion"></ion-input>
   </ion-item>
 
+  <!-- Tipo de Clase -->
   <ion-item>
     <ion-label position="stacked">Tipo de Clase</ion-label>
     <ion-select [(ngModel)]="asignatura.tipoClase">
@@ -56,15 +59,38 @@
     </ion-item>
   </div>
 
-  <ion-item>
+  <!-- Selección de días -->
+  <ion-item *ngIf="asignatura.tipoClase !== 'mixta'">
     <ion-label position="stacked">Días</ion-label>
     <ion-select [(ngModel)]="asignatura.dias" multiple="true">
-      <ion-select-option *ngFor="let dia of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes','Sábado','Domingo']">
+      <ion-select-option *ngFor="let dia of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']">
         {{ dia }}
       </ion-select-option>
     </ion-select>
   </ion-item>
 
+  <!-- Días separados para clases mixtas -->
+  <div *ngIf="asignatura.tipoClase === 'mixta'">
+    <ion-item>
+      <ion-label position="stacked">Día Teórica</ion-label>
+      <ion-select [(ngModel)]="diasTeorica" interface="popover">
+        <ion-select-option *ngFor="let dia of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']">
+          {{ dia }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Día Práctica</ion-label>
+      <ion-select [(ngModel)]="diasPractica" interface="popover">
+        <ion-select-option *ngFor="let dia of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']">
+          {{ dia }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <!-- Alumnos -->
   <ion-item>
     <ion-label position="stacked">Alumnos</ion-label>
     <ion-select [(ngModel)]="alumnosSeleccionados" multiple="true">
@@ -74,5 +100,6 @@
     </ion-select>
   </ion-item>
 
+  <!-- Botón para crear asignatura -->
   <ion-button expand="block" (click)="crearAsignatura()">Crear Asignatura</ion-button>
 </ion-content>
