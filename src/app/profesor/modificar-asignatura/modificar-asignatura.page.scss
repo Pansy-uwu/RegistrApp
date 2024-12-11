@@ -1,0 +1,91 @@
+/* Fondo blanco general */
+body,
+ion-content {
+  --background: #ffffff !important; /* Fondo blanco */
+}
+
+/* Estilo del toolbar */
+ion-toolbar {
+  --background: #002b5c !important; /* Fondo blanco */
+  --color: #ffffff !important; /* Texto negro */
+  text-align: center;
+}
+
+/* Texto negro en todas las etiquetas */
+ion-label {
+  font-size: 1.8rem; /* Tamaño del texto aumentado más */
+  font-weight: bold;
+  color: #000000 !important; /* Texto negro */
+  margin-bottom: 12px; /* Separación entre etiqueta y campo */
+  display: block; /* Asegurar alineación */
+}
+
+/* Inputs, selectores y datetime */
+ion-input,
+ion-select,
+ion-datetime {
+  --background: #ffffff !important; /* Fondo blanco */
+  border: none !important; /* Eliminar borde */
+  box-shadow: none !important; /* Eliminar sombra */
+  font-size: 1.1rem; /* Tamaño del texto */
+  color: #000000 !important; /* Texto negro */
+  --color: #000000 !important; /* Texto negro */
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --border-radius: 0px; /* Sin bordes redondeados */
+  margin-bottom: 20px; /* Espaciado adicional */
+  margin-top: 20px; /* Espaciado superior para evitar solapamientos */
+}
+
+ion-datetime::part(container) {
+    background-color: #ffffff !important; /* Fondo blanco */
+    box-shadow: none !important; /* Eliminar cualquier sombra */
+    border: none !important; /* Eliminar bordes */
+  }
+
+/* Eliminar el fondo negro de las columnas y contenido */
+ion-datetime::part(column),
+ion-datetime::part(content),
+ion-datetime::part(item) {
+  background-color: #ffffff !important; /* Fondo blanco */
+  background-image: none !important; /* Eliminar cualquier degradado */
+  box-shadow: none !important; /* Eliminar cualquier sombra */
+  color: #000000 !important; /* Texto negro */
+}
+
+/* Indicador central en el selector */
+/* Eliminar degradado en el indicador de hora */
+ion-datetime::part(indicator) {
+  background-color: transparent !important; /* Fondo transparente */
+  height: 40px;
+}
+
+/* Eliminar el fondo negro de los items */
+ion-datetime::part(item) {
+    font-size: 1.2rem; /* Tamaño del texto */
+    padding: 10px 0; /* Más espaciado entre líneas */
+    color: #000000 !important; /* Texto negro */
+    background-color: #ffffff !important; /* Fondo blanco */
+    border: none !important; /* Eliminar borde */
+    background-image: none !important; /* Eliminar el degradado */
+  }
+
+/* Contenedor de los elementos */
+ion-item {
+  --background: #ffffff !important; /* Fondo blanco */
+  --padding-start: 10px; /* Más espaciado interno */
+  --padding-end: 10px;
+  margin-bottom: 20px; /* Separación clara entre campos */
+  border-radius: 8px;
+}
+
+/* Botón para crear asignatura */
+ion-button {
+  --background: #002b5c !important; /* Fondo azul oscuro */
+  --color: #ffffff !important; /* Texto blanco */
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 20px;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
