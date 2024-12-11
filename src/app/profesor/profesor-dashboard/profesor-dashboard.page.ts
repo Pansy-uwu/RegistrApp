@@ -219,7 +219,7 @@ export class ProfesorDashboardPage implements OnInit {
 
   modificarAsignatura(asignaturaId: string) {
     this.router.navigate(['/modificar-asignatura'], {
-      queryParams: { asignaturaId: asignaturaId },
+      queryParams: { asignaturaId : asignaturaId },
     });
   }
 

@@ -14,6 +14,7 @@ export class GenerateQrPage implements OnInit {
   qrCodeData: string = '';
   estudiantesRegistrados: any[] = [];
   subscription: Subscription | undefined;
+  asignaturaNombre: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -28,6 +29,7 @@ export class GenerateQrPage implements OnInit {
         this.asignaturaId = params['id'];
         this.qrCodeData = this.asignaturaId;
         console.log('Asignatura ID recibido:', this.asignaturaId);
+        this.cargarAsignatura();
         this.escucharAsistencias();
       } else {
         console.error('No se proporcionó un ID de asignatura.');
@@ -36,7 +38,20 @@ export class GenerateQrPage implements OnInit {
       }
     });
   }
-
+  
+  cargarAsignatura() {
+    this.firebaseService.getDataOnce(`asignaturas/${this.asignaturaId}`).then((asignatura: any) => {
+      if (asignatura && asignatura.nombre) {
+        this.asignaturaNombre = asignatura.nombre;
+        console.log('Nombre de la asignatura cargado:', this.asignaturaNombre);
+      } else {
+        console.error('No se encontró la asignatura o no tiene un nombre.');
+      }
+    }).catch((error) => {
+      console.error('Error al cargar la asignatura:', error);
+    });
+  }
+  
   escucharAsistencias() {
     console.log('Iniciando escucha de asistencias en tiempo real...');
     
