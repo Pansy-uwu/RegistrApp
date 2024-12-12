@@ -112,25 +112,6 @@ async scanQRCode(asignaturaId: string) {
     await this.registerAttendance();
   }
 
-  async registerAttendance() {
-    try {
-      const fecha = new Date();
-      const fechaFormateada = fecha.toLocaleDateString('en-CA');
-
-      const refPath = `/asignaturas/${this.claseId}/asistencias/${this.userUID}`;
-      const asistenciaAlumno = {
-        estado: 'Presente',
-        fecha: fechaFormateada,
-        timestamp: fecha.toISOString(),
-      };
-
-      await this.firebaseService.updateData(refPath, asistenciaAlumno);
-      alert('Asistencia registrada con éxito.');
-    } catch (error) {
-      alert('Error al registrar la asistencia.');
-    }
-  }
-
   async requestPermissions(): Promise<boolean> {
     try {
       const { camera } = await BarcodeScanner.requestPermissions();
@@ -140,6 +121,92 @@ async scanQRCode(asignaturaId: string) {
       return false;
     }
   }
+
+  async registerAttendance() {
+    try {
+      if (!this.claseId || !this.userUID || !this.userEmail) {
+        console.error('Datos incompletos para registrar la asistencia.');
+        alert('Faltan datos para registrar la asistencia.');
+        return;
+      }
+  
+      const fecha = new Date();
+      const fechaFormateada = fecha.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
+  
+      console.log('Obteniendo datos del usuario...');
+      const userSnapshot = await this.firebaseService
+        .getDatabaseRef(`/usuarios/${this.userUID}`)
+        .once('value');
+      const userData = userSnapshot.val();
+  
+      if (!userData) {
+        throw new Error(`No se encontró información del usuario con UID: ${this.userUID}`);
+      }
+  
+      const nombreCompleto = `${userData.nombre} ${userData.apellido}`;
+      console.log('Nombre completo del alumno:', nombreCompleto);
+  
+      console.log('Obteniendo asistencias actuales...');
+      const asistenciasSnapshot = await this.firebaseService
+        .getDatabaseRef(`/asignaturas/${this.claseId}/asistencias`)
+        .once('value');
+      const asistencias = asistenciasSnapshot.val() || {};
+  
+      // Buscar una clase que ya tenga la fecha actual
+      let claseParaHoy = null;
+  
+      for (const clase in asistencias) {
+        const alumnos = asistencias[clase];
+        for (const uid in alumnos) {
+          if (alumnos[uid].fecha === fechaFormateada) {
+            claseParaHoy = clase; // Encontrar la clase correspondiente a la fecha
+            break;
+          }
+        }
+        if (claseParaHoy) break; // Salir si ya se encontró la clase
+      }
+  
+      // Preparar los datos de la nueva asistencia
+      const nuevaAsistencia = {
+        nombre: nombreCompleto,
+        estado: 'Presente',
+        fecha: fechaFormateada,
+        timestamp: fecha.toISOString(),
+      };
+  
+      if (claseParaHoy) {
+        // Si ya existe una clase para hoy, agregar el alumno a esa clase
+        console.log(`Agregando asistencia a la clase existente: ${claseParaHoy}`);
+        const refPath = `/asignaturas/${this.claseId}/asistencias/${claseParaHoy}/${this.userUID}`;
+        await this.firebaseService.updateData(refPath, nuevaAsistencia);
+      } else {
+        // Si no existe, crear una nueva clase y agregar el alumno
+        const nuevaClaseId = `Clase ${Object.keys(asistencias).length + 1}`;
+        console.log(`Creando nueva clase: ${nuevaClaseId}`);
+        const refPath = `/asignaturas/${this.claseId}/asistencias/${nuevaClaseId}/${this.userUID}`;
+        await this.firebaseService.updateData(refPath, nuevaAsistencia);
+      }
+  
+      console.log('Asistencia registrada con éxito.');
+  
+      alert(`Asistencia registrada con éxito para ${nombreCompleto}.`);
+      this.router.navigate(['/alumno-dashboard']).then(() => {
+        console.log('Redirigido exitosamente al Dashboard del Alumno.');
+      }).catch(error => {
+        console.error('Error al redirigir al Dashboard del Alumno:', error);
+      });
+    } catch (error) {
+      let errorMessage = 'Error al registrar la asistencia. Intente nuevamente.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      alert(errorMessage);
+      console.error('Error al registrar la asistencia:', errorMessage);
+    }
+  }
+  
+  
+  
 
   async presentPermissionAlert(): Promise<void> {
     const alert = await this.alertController.create({
